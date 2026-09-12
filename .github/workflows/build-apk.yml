@@ -13,21 +13,31 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Java 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
 
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
         with:
           packages: platform-tools "platforms;android-34" "build-tools;34.0.0"
 
       - name: Scaffold Android project
         run: |
+          echo "=== Files in repo ==="
+          ls -la
+          HTML_FILE=$(find . -maxdepth 2 -name 'index.html' -not -path './app/*' | head -n 1)
+          if [ -z "$HTML_FILE" ]; then
+            echo "ERROR: index.html was not found in this repository."
+            echo "Upload index.html to the repository first (Add file > Upload files), then re-run this workflow."
+            exit 1
+          fi
+          echo "Using $HTML_FILE as the app page."
+
           mkdir -p app/src/main/java/com/workoutapp/app app/src/main/assets/www
 
-          cp index.html app/src/main/assets/www/index.html
+          cp "$HTML_FILE" app/src/main/assets/www/index.html
 
           cat > settings.gradle <<'EOF'
           pluginManagement {
