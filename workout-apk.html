@@ -1,0 +1,972 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light" />
+  <meta name="theme-color" content="#0b1f27" />
+  <link rel="icon" href="data:," />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+  <title>Workout App</title>
+  <style>
+    :root {
+      --ink: #0b1f27;
+      --ink-2: #18343e;
+      --paper: #f7faf8;
+      --white: #ffffff;
+      --orange: #f36c3d;
+      --orange-dark: #b63513;
+      --mint: #74d3b3;
+      --mint-pale: #dff5ed;
+      --yellow: #ffd166;
+      --line: #b7c8ca;
+      --muted: #37545d;
+      --focus: #006d77;
+      --shadow: 0 14px 34px rgba(11, 31, 39, .13);
+    }
+
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: "Atkinson Hyperlegible", sans-serif;
+      font-size: 18px;
+      line-height: 1.5;
+    }
+    button, select, input, textarea { font: inherit; }
+    button, a, select, input, textarea { -webkit-tap-highlight-color: transparent; }
+    button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
+      outline: 4px solid var(--yellow);
+      outline-offset: 3px;
+    }
+    .skip-link {
+      position: absolute; left: 1rem; top: -5rem; z-index: 100;
+      background: var(--white); color: var(--ink); padding: .8rem 1rem;
+      border: 2px solid var(--ink); border-radius: 8px;
+    }
+    .skip-link:focus { top: 1rem; }
+
+    .hero {
+      background: var(--ink);
+      color: var(--white);
+      padding: clamp(2rem, 5vw, 5rem) max(1rem, calc((100vw - 1180px) / 2));
+      overflow: hidden;
+      position: relative;
+    }
+    .hero::after {
+      content: "";
+      position: absolute; right: -8rem; bottom: -11rem;
+      width: 27rem; height: 27rem; border-radius: 50%;
+      border: 4rem solid rgba(116, 211, 179, .12);
+      pointer-events: none;
+    }
+    .hero-inner {
+      display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(220px, .65fr);
+      align-items: center; gap: clamp(2rem, 6vw, 5rem); position: relative; z-index: 1;
+    }
+    .hero h1 {
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: clamp(3rem, 7vw, 6.2rem);
+      line-height: .92; margin: 0 0 1.2rem; max-width: 760px;
+      letter-spacing: -.02em;
+    }
+    .hero p { font-size: clamp(1.1rem, 2vw, 1.35rem); max-width: 650px; color: #e8f4f1; margin: 0 0 1.7rem; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: .8rem; }
+    .primary, .secondary {
+      min-height: 52px; border: 0; padding: .78rem 1.1rem; border-radius: 10px;
+      font-weight: 700; cursor: pointer; display: inline-flex; align-items: center;
+      justify-content: center; text-decoration: none;
+    }
+    .primary { background: var(--orange); color: #190b06; box-shadow: 0 4px 0 #8f2b10; }
+    .primary:hover { background: #ff8052; }
+    .secondary { background: transparent; border: 2px solid #a9d8ca; color: var(--white); }
+    .secondary:hover { background: rgba(255,255,255,.09); }
+    .hero-art { display: grid; place-items: center; }
+    .hero-art img {
+      width: min(100%, 310px); aspect-ratio: 1; object-fit: cover;
+      border-radius: 50% 50% 18% 18%; border: 8px solid var(--mint);
+      box-shadow: 18px 18px 0 var(--orange);
+    }
+
+    main { width: min(1180px, calc(100% - 2rem)); margin: 0 auto; }
+    section { padding: clamp(3rem, 7vw, 5.8rem) 0; }
+    .section-head { display: flex; justify-content: space-between; gap: 2rem; align-items: end; margin-bottom: 1.8rem; }
+    .section-head > div { max-width: 720px; }
+    h2, h3 { font-family: "Barlow Condensed", sans-serif; line-height: 1.05; }
+    h2 { font-size: clamp(2.3rem, 5vw, 4.1rem); margin: 0 0 .7rem; }
+    h3 { font-size: 1.65rem; margin: 0 0 .5rem; }
+    .section-head p, .builder-copy, .subtle { color: var(--muted); }
+    .section-head p { margin: 0; font-size: 1.08rem; }
+
+    .builder {
+      background: var(--white); border: 2px solid var(--ink); border-radius: 28px 8px 28px 8px;
+      box-shadow: var(--shadow); overflow: hidden;
+    }
+    .builder-grid { display: grid; grid-template-columns: 1fr 1.1fr; }
+    .controls { padding: clamp(1.3rem, 4vw, 2.3rem); background: #eef5f2; border-right: 2px solid var(--ink); }
+    .plan { padding: clamp(1.3rem, 4vw, 2.3rem); min-width: 0; }
+    fieldset { border: 0; padding: 0; margin: 0 0 1.5rem; }
+    legend, label.control-label { display: block; font-weight: 700; margin-bottom: .55rem; }
+    .choice-row { display: flex; flex-wrap: wrap; gap: .55rem; }
+    .choice {
+      min-height: 48px; border: 2px solid var(--ink); background: var(--white); color: var(--ink);
+      border-radius: 999px; padding: .55rem .85rem; font-weight: 700; cursor: pointer;
+    }
+    .choice[aria-pressed="true"] { background: var(--ink); color: var(--white); box-shadow: inset 0 0 0 2px var(--mint); }
+    select {
+      width: 100%; min-height: 52px; padding: .65rem .75rem; border: 2px solid var(--ink);
+      border-radius: 8px; color: var(--ink); background: var(--white); font-weight: 700;
+    }
+    .generate { width: 100%; margin-top: .2rem; }
+    .builder-note { margin: .85rem 0 0; font-size: .94rem; color: var(--muted); }
+    .plan-meta { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; }
+    .tag { background: var(--mint-pale); border: 1px solid #589c87; border-radius: 6px; padding: .3rem .55rem; font-size: .9rem; font-weight: 700; }
+    .exercise-list { display: grid; gap: .7rem; margin: 1rem 0 1.3rem; }
+    .exercise-row {
+      display: grid; grid-template-columns: 2.4rem minmax(0, 1fr) auto; gap: .7rem; align-items: center;
+      padding: .75rem; border-bottom: 2px solid #d7e2df;
+    }
+    .exercise-row:last-child { border-bottom: 0; }
+    .exercise-number {
+      width: 2.35rem; height: 2.35rem; display: grid; place-items: center;
+      border-radius: 50%; background: var(--yellow); font-weight: 700;
+    }
+    .exercise-name { font-weight: 700; }
+    .exercise-dose { color: var(--muted); font-size: .95rem; }
+    .detail-btn { min-width: 78px; min-height: 44px; border: 2px solid var(--ink); background: var(--white); border-radius: 7px; font-weight: 700; cursor: pointer; }
+    .plan-actions { display: flex; flex-wrap: wrap; gap: .65rem; }
+    .plan-actions .secondary { color: var(--ink); border-color: var(--ink); }
+
+    .gear-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+    .gear-card {
+      background: var(--white); padding: 1.25rem; min-height: 230px; border-top: 7px solid var(--orange);
+      box-shadow: 0 8px 20px rgba(11,31,39,.09);
+    }
+    .gear-card:nth-child(2) { border-top-color: var(--mint); transform: translateY(1rem); }
+    .gear-card:nth-child(3) { border-top-color: var(--yellow); }
+    .gear-card:nth-child(4) { border-top-color: #4a9ca6; transform: translateY(1rem); }
+    .gear-icon { width: 72px; height: 72px; display: grid; place-items: center; margin-bottom: 1rem; color: var(--ink); }
+    .gear-icon svg { width: 100%; height: 100%; stroke: currentColor; fill: none; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
+    .gear-card p { color: var(--muted); margin: 0; }
+
+    .library-controls { display: flex; flex-wrap: wrap; gap: .55rem; margin-bottom: 1.2rem; }
+    .library-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+    .move-card {
+      background: var(--white); border: 2px solid #93aaad; padding: 1.15rem; border-radius: 4px 20px 4px 20px;
+      display: flex; flex-direction: column;
+    }
+    .move-card .equipment { color: var(--orange-dark); font-weight: 700; font-size: .92rem; }
+    .move-card p { color: var(--muted); flex: 1; }
+    .move-card button { align-self: flex-start; min-height: 44px; border: 0; background: var(--ink); color: var(--white); padding: .55rem .8rem; border-radius: 7px; font-weight: 700; cursor: pointer; }
+
+    .safety {
+      background: var(--ink); color: var(--white); width: 100vw; margin-left: calc(50% - 50vw);
+    }
+    .safety-inner { width: min(1180px, calc(100% - 2rem)); margin: auto; display: grid; grid-template-columns: .8fr 1.2fr; gap: 2rem; }
+    .safety h2 { color: var(--yellow); }
+    .safety-list { list-style: none; margin: 0; padding: 0; display: grid; gap: .8rem; }
+    .safety-list li { position: relative; padding-left: 2rem; }
+    .safety-list li::before { content: "✓"; position: absolute; left: 0; top: 0; color: var(--mint); font-size: 1.3rem; font-weight: 700; }
+
+    dialog {
+      width: min(650px, calc(100% - 1.2rem)); max-height: 90vh; overflow: auto;
+      border: 3px solid var(--ink); border-radius: 18px 5px 18px 5px; padding: 0;
+      box-shadow: 0 24px 80px rgba(0,0,0,.4); color: var(--ink);
+    }
+    dialog::backdrop { background: rgba(4, 18, 23, .8); }
+    .dialog-head { background: var(--ink); color: var(--white); padding: 1rem 1.2rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .dialog-head h2 { font-size: 2rem; margin: 0; }
+    .close-btn { border: 2px solid var(--white); background: transparent; color: var(--white); min-width: 46px; min-height: 46px; border-radius: 50%; font-size: 1.5rem; cursor: pointer; }
+    .dialog-body { padding: 1.25rem; }
+    .steps { padding-left: 1.3rem; }
+    .steps li { margin-bottom: .7rem; }
+    .cue { padding: .85rem 1rem; background: var(--mint-pale); border-left: 6px solid #397d69; margin-top: 1rem; }
+    .warning { padding: .85rem 1rem; background: #fff1d2; border-left: 6px solid #a85a00; margin-top: 1rem; }
+
+    .player { text-align: center; }
+    .player .round { color: var(--orange-dark); font-weight: 700; }
+    .player h3 { font-size: clamp(2.2rem, 8vw, 4rem); margin: .2rem 0 .6rem; }
+    .timer { font-family: "Barlow Condensed", sans-serif; font-size: clamp(4.5rem, 20vw, 8rem); line-height: .9; margin: .5rem 0 1rem; font-variant-numeric: tabular-nums; }
+    .player-controls { display: flex; flex-wrap: wrap; justify-content: center; gap: .65rem; }
+    .player-controls button { min-height: 52px; }
+    .live { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .empty { padding: 1rem; background: #fff1d2; border: 2px solid #9b5d00; border-radius: 8px; }
+
+    .profile-summary {
+      display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+      padding: 1rem clamp(1.3rem, 4vw, 2.3rem); background: #fff8e7; border-bottom: 2px solid var(--ink);
+    }
+    .profile-summary strong { display: block; font-size: 1.05rem; }
+    .profile-summary p { margin: .15rem 0 0; color: var(--muted); }
+    .profile-summary button { min-height: 44px; border: 2px solid var(--ink); border-radius: 7px; background: var(--white); color: var(--ink); font-weight: 700; padding: .5rem .8rem; cursor: pointer; white-space: nowrap; }
+
+    .onboarding-dialog { width: min(780px, calc(100% - 1.2rem)); }
+    .onboarding-dialog .dialog-head { position: sticky; top: 0; z-index: 2; }
+    .onboarding-dialog .dialog-body { padding: clamp(1rem, 4vw, 1.8rem); }
+    .intro-note { margin: 0 0 1.3rem; color: var(--muted); }
+    .privacy-note { padding: .75rem .9rem; background: var(--mint-pale); border: 1px solid #589c87; border-radius: 7px; margin-bottom: 1.4rem; }
+    .question-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem 1.2rem; }
+    .question { min-width: 0; }
+    .question.full { grid-column: 1 / -1; }
+    .question label, .question .question-label { display: block; font-weight: 700; margin-bottom: .4rem; }
+    .question input[type="number"], .question textarea {
+      width: 100%; min-height: 52px; padding: .65rem .75rem; border: 2px solid var(--ink); border-radius: 8px; background: var(--white); color: var(--ink);
+    }
+    .height-fields { display: grid; grid-template-columns: 1fr 1fr; gap: .65rem; }
+    .height-fields label { font-weight: 400; }
+    .check-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .55rem; }
+    .check-option {
+      display: flex; gap: .6rem; align-items: center; min-height: 50px; padding: .55rem .7rem;
+      background: var(--white); border: 2px solid var(--line); border-radius: 8px; font-weight: 700; cursor: pointer;
+    }
+    .check-option:has(input:checked) { border-color: var(--ink); background: var(--mint-pale); }
+    .check-option input { width: 22px; height: 22px; flex: 0 0 auto; accent-color: var(--focus); }
+    .form-error { min-height: 1.5rem; color: #8b1e0e; font-weight: 700; margin: .8rem 0 0; }
+    .form-actions { display: flex; flex-wrap: wrap; gap: .7rem; margin-top: 1rem; }
+    .form-actions .secondary { color: var(--ink); border-color: var(--ink); }
+    .plan-note { padding: .8rem .9rem; background: #fff8e7; border: 1px solid #b48523; border-radius: 7px; margin: .8rem 0 1rem; }
+    .schedule-line { margin: .45rem 0 1rem; color: var(--muted); }
+
+    footer { padding: 2rem 1rem calc(2rem + env(safe-area-inset-bottom)); text-align: center; color: var(--muted); }
+
+    @media (max-width: 900px) {
+      .hero-inner, .builder-grid, .safety-inner { grid-template-columns: 1fr; }
+      .hero-art { justify-content: start; }
+      .hero-art img { width: 190px; }
+      .controls { border-right: 0; border-bottom: 2px solid var(--ink); }
+      .gear-grid { grid-template-columns: repeat(2, 1fr); }
+      .library-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .gear-card:nth-child(2), .gear-card:nth-child(4) { transform: none; }
+    }
+    @media (max-width: 600px) {
+      body { font-size: 17px; }
+      .hero { padding-top: 2.3rem; }
+      .hero-actions > * { width: 100%; }
+      .hero-art { display: none; }
+      .profile-summary { align-items: stretch; flex-direction: column; }
+      .profile-summary button { width: 100%; }
+      .question-grid, .check-grid { grid-template-columns: 1fr; }
+      .question.full { grid-column: auto; }
+      .form-actions > * { width: 100%; }
+      main { width: min(100% - 1rem, 1180px); }
+      section { padding: 3.2rem 0; }
+      .section-head { align-items: start; flex-direction: column; gap: .5rem; }
+      .gear-grid, .library-grid { grid-template-columns: 1fr; }
+      .gear-card { min-height: 0; display: grid; grid-template-columns: 64px 1fr; column-gap: 1rem; }
+      .gear-card .gear-icon { grid-row: 1 / 3; width: 58px; height: 58px; }
+      .gear-card h3 { margin-top: .2rem; }
+      .exercise-row { grid-template-columns: 2.3rem minmax(0, 1fr); }
+      .detail-btn { grid-column: 2; justify-self: start; }
+      .plan-actions > * { width: 100%; }
+      .safety-inner { width: calc(100% - 1.4rem); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#builder">Skip to workout builder</a>
+
+  <header class="hero">
+    <div class="hero-inner">
+      <div>
+        <h1>What are you training today?</h1>
+        <p>Build a clear, guided workout with a kettlebell, dumbbells, an ab roller, or resistance bands. Every movement includes plain-language setup and form cues.</p>
+        <div class="hero-actions">
+          <a class="primary" href="#builder">Build my workout</a>
+          <a class="secondary" href="#library">Browse movements</a>
+        </div>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <img src="icon.jpg" alt="" />
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="builder" aria-labelledby="builder-title">
+      <div class="section-head">
+        <div>
+          <h2 id="builder-title">Build a session that fits</h2>
+          <p>Choose your level, time, focus, and available equipment. The plan updates when you select Generate workout.</p>
+        </div>
+      </div>
+
+      <div class="builder">
+        <div class="profile-summary" id="profile-summary" hidden>
+          <div>
+            <strong id="profile-summary-title">Personalized plan</strong>
+            <p id="profile-summary-text"></p>
+          </div>
+          <button type="button" id="edit-profile">Edit my answers</button>
+        </div>
+        <div class="builder-grid">
+          <div class="controls">
+            <fieldset>
+              <legend>Experience level</legend>
+              <div class="choice-row" data-single="level">
+                <button class="choice" type="button" aria-pressed="true" data-value="Beginner">Beginner</button>
+                <button class="choice" type="button" aria-pressed="false" data-value="Intermediate">Intermediate</button>
+                <button class="choice" type="button" aria-pressed="false" data-value="Advanced">Advanced</button>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>Time available</legend>
+              <div class="choice-row" data-single="duration">
+                <button class="choice" type="button" aria-pressed="false" data-value="15">15 min</button>
+                <button class="choice" type="button" aria-pressed="true" data-value="25">25 min</button>
+                <button class="choice" type="button" aria-pressed="false" data-value="35">35 min</button>
+              </div>
+            </fieldset>
+
+            <label class="control-label" for="focus">Training focus</label>
+            <select id="focus">
+              <option value="full">Full body</option>
+              <option value="upper">Upper body</option>
+              <option value="lower">Lower body</option>
+              <option value="core">Core and stability</option>
+            </select>
+
+            <fieldset style="margin-top:1.5rem">
+              <legend>Equipment available</legend>
+              <div class="choice-row" data-multi="equipment">
+                <button class="choice" type="button" aria-pressed="true" data-value="Kettlebell">Kettlebell</button>
+                <button class="choice" type="button" aria-pressed="true" data-value="Dumbbells">Dumbbells</button>
+                <button class="choice" type="button" aria-pressed="true" data-value="Ab roller">Ab roller</button>
+                <button class="choice" type="button" aria-pressed="true" data-value="Bands">Bands</button>
+              </div>
+            </fieldset>
+
+            <button class="primary generate" type="button" id="generate">Generate workout</button>
+            <p class="builder-note">Your selections and session progress last only while this page stays open.</p>
+          </div>
+
+          <div class="plan" aria-live="polite" aria-atomic="false">
+            <div id="plan-output"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="gear-title">
+      <div class="section-head">
+        <div>
+          <h2 id="gear-title">Four tools, hundreds of options</h2>
+          <p>You do not need every piece of equipment. One tool and enough space to move can make a complete session.</p>
+        </div>
+      </div>
+      <div class="gear-grid">
+        <article class="gear-card">
+          <div class="gear-icon" aria-hidden="true"><svg viewBox="0 0 80 80"><path d="M27 31c-4-18 22-22 26 0"/><path d="M20 32h40l7 35H13z"/><path d="M30 31c-2-10 18-10 20 0"/></svg></div>
+          <div><h3>Kettlebell</h3><p>Great for hinges, squats, carries, and controlled total-body strength.</p></div>
+        </article>
+        <article class="gear-card">
+          <div class="gear-icon" aria-hidden="true"><svg viewBox="0 0 80 80"><path d="M24 40h32"/><path d="M16 25h8v30h-8zM8 31h8v18H8zM56 25h8v30h-8zM64 31h8v18h-8z"/></svg></div>
+          <div><h3>Dumbbells</h3><p>Easy to scale one side at a time for presses, rows, lunges, and curls.</p></div>
+        </article>
+        <article class="gear-card">
+          <div class="gear-icon" aria-hidden="true"><svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="15"/><circle cx="40" cy="40" r="5"/><path d="M5 40h20M55 40h20M10 34v12M70 34v12"/></svg></div>
+          <div><h3>Ab roller</h3><p>A focused core tool. Range matters more than distance; start short and stay controlled.</p></div>
+        </article>
+        <article class="gear-card">
+          <div class="gear-icon" aria-hidden="true"><svg viewBox="0 0 80 80"><path d="M13 53c10-27 44-27 54 0"/><path d="M18 52l-7 12M62 52l7 12"/><path d="M9 58l9 6M71 58l-9 6"/><circle cx="40" cy="34" r="5"/></svg></div>
+          <div><h3>Resistance bands</h3><p>Joint-friendly tension for rows, presses, leg work, mobility, and warm-ups.</p></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="library" aria-labelledby="library-title">
+      <div class="section-head">
+        <div>
+          <h2 id="library-title">Movement library</h2>
+          <p>Select a tool to narrow the list. Open any movement for setup, steps, form cues, and an easier option.</p>
+        </div>
+      </div>
+      <div class="library-controls" aria-label="Filter movements by equipment">
+        <button class="choice lib-filter" type="button" aria-pressed="true" data-filter="All">All</button>
+        <button class="choice lib-filter" type="button" aria-pressed="false" data-filter="Kettlebell">Kettlebell</button>
+        <button class="choice lib-filter" type="button" aria-pressed="false" data-filter="Dumbbells">Dumbbells</button>
+        <button class="choice lib-filter" type="button" aria-pressed="false" data-filter="Ab roller">Ab roller</button>
+        <button class="choice lib-filter" type="button" aria-pressed="false" data-filter="Bands">Bands</button>
+      </div>
+      <div class="library-grid" id="library-grid"></div>
+    </section>
+
+    <section class="safety" aria-labelledby="safety-title">
+      <div class="safety-inner">
+        <div><h2 id="safety-title">Train smart before you train hard</h2></div>
+        <ul class="safety-list">
+          <li>Warm up for 3 to 5 minutes with easy marching, arm circles, and unloaded versions of your first movement.</li>
+          <li>Choose a resistance that leaves about two good repetitions in reserve. Form should stay steady from first rep to last.</li>
+          <li>Stop if you feel sharp, pinching, or sudden pain. Muscle effort is expected; joint pain is not.</li>
+          <li>For ab roller work, shorten the rollout as soon as your lower back starts to arch.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer>Move at your own pace. Consistency beats a perfect workout.</footer>
+
+  <dialog id="onboarding-dialog" class="onboarding-dialog" aria-labelledby="onboarding-title">
+    <div class="dialog-head">
+      <h2 id="onboarding-title">Build your starting plan</h2>
+      <button class="close-btn" type="button" aria-label="Close fitness questions and use general defaults" id="close-onboarding">×</button>
+    </div>
+    <form class="dialog-body" id="profile-form" novalidate>
+      <p class="intro-note">Answer a few basic fitness questions so the first workout matches your experience, goal, schedule, and equipment.</p>
+      <div class="privacy-note"><strong>Private in this session:</strong> your answers are not saved and disappear when you close the page.</div>
+      <div class="question-grid">
+        <div class="question">
+          <label for="profile-age">Age</label>
+          <input id="profile-age" name="age" type="number" inputmode="numeric" min="10" max="100" required aria-describedby="age-help">
+          <small id="age-help">Used to keep the starting volume appropriate.</small>
+        </div>
+        <div class="question">
+          <span class="question-label" id="height-label">Height</span>
+          <div class="height-fields" role="group" aria-labelledby="height-label">
+            <label><input id="profile-feet" name="feet" type="number" inputmode="numeric" min="3" max="8" required> feet</label>
+            <label><input id="profile-inches" name="inches" type="number" inputmode="numeric" min="0" max="11" required> inches</label>
+          </div>
+        </div>
+        <div class="question">
+          <label for="profile-level">Fitness experience</label>
+          <select id="profile-level" name="level">
+            <option value="Beginner">New or returning</option>
+            <option value="Intermediate">Some regular training</option>
+            <option value="Advanced">Experienced</option>
+          </select>
+        </div>
+        <div class="question">
+          <label for="profile-activity">Current activity level</label>
+          <select id="profile-activity" name="activity">
+            <option value="low">Mostly inactive</option>
+            <option value="light">A little active</option>
+            <option value="regular">Regularly active</option>
+          </select>
+        </div>
+        <div class="question">
+          <label for="profile-goal">Main fitness goal</label>
+          <select id="profile-goal" name="goal">
+            <option value="general">Improve overall fitness</option>
+            <option value="strength">Build strength</option>
+            <option value="tone">Build muscle tone</option>
+            <option value="weight">Support weight management</option>
+            <option value="mobility">Move more comfortably</option>
+            <option value="core">Strengthen core and stability</option>
+          </select>
+        </div>
+        <div class="question">
+          <label for="profile-days">Training days each week</label>
+          <select id="profile-days" name="days">
+            <option value="2">2 days</option>
+            <option value="3">3 days</option>
+            <option value="4">4 days</option>
+            <option value="5">5 days</option>
+          </select>
+        </div>
+        <div class="question">
+          <label for="profile-time">Time per workout</label>
+          <select id="profile-time" name="time">
+            <option value="15">15 minutes</option>
+            <option value="25" selected>25 minutes</option>
+            <option value="35">35 minutes</option>
+          </select>
+        </div>
+        <div class="question">
+          <label for="profile-limitations">Pain, injuries, or health limits that affect exercise?</label>
+          <select id="profile-limitations" name="limitations">
+            <option value="none">No</option>
+            <option value="yes">Yes</option>
+            <option value="unsure">Not sure</option>
+          </select>
+        </div>
+        <div class="question full">
+          <label for="profile-notes">Anything the plan should work around? <span class="subtle">Optional</span></label>
+          <textarea id="profile-notes" name="notes" rows="2" maxlength="180" placeholder="For example: sensitive knees, limited overhead reach, or balance concerns"></textarea>
+        </div>
+        <fieldset class="question full">
+          <legend>Equipment you have</legend>
+          <div class="check-grid">
+            <label class="check-option"><input type="checkbox" name="equipment" value="Kettlebell" checked> Kettlebell</label>
+            <label class="check-option"><input type="checkbox" name="equipment" value="Dumbbells" checked> Dumbbells</label>
+            <label class="check-option"><input type="checkbox" name="equipment" value="Ab roller" checked> Ab roller</label>
+            <label class="check-option"><input type="checkbox" name="equipment" value="Bands" checked> Resistance bands</label>
+          </div>
+        </fieldset>
+      </div>
+      <div class="form-error" id="profile-error" role="alert"></div>
+      <div class="form-actions">
+        <button class="primary" type="submit">Build my personalized plan</button>
+        <button class="secondary" type="button" id="use-defaults">Use a general beginner plan</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="detail-dialog" aria-labelledby="detail-title">
+    <div class="dialog-head">
+      <h2 id="detail-title">Movement details</h2>
+      <button class="close-btn" type="button" aria-label="Close movement details" data-close="detail-dialog">×</button>
+    </div>
+    <div class="dialog-body" id="detail-body"></div>
+  </dialog>
+
+  <dialog id="player-dialog" aria-labelledby="player-title">
+    <div class="dialog-head">
+      <h2 id="player-title">Guided session</h2>
+      <button class="close-btn" type="button" aria-label="Close guided session" data-close="player-dialog">×</button>
+    </div>
+    <div class="dialog-body player">
+      <div class="round" id="player-progress"></div>
+      <h3 id="player-exercise"></h3>
+      <p id="player-dose"></p>
+      <div class="timer" id="timer" aria-hidden="true">40</div>
+      <p id="timer-label">Ready when you are.</p>
+      <div class="player-controls">
+        <button class="secondary" style="color:var(--ink);border-color:var(--ink)" type="button" id="prev-move">Previous</button>
+        <button class="primary" type="button" id="timer-toggle">Start 40-second timer</button>
+        <button class="secondary" style="color:var(--ink);border-color:var(--ink)" type="button" id="next-move">Next</button>
+      </div>
+      <div class="live" aria-live="assertive" id="timer-live"></div>
+    </div>
+  </dialog>
+
+  <script>
+    const exercises = [
+      {
+        id: "kb-deadlift", name: "Kettlebell deadlift", equipment: "Kettlebell", focus: ["full","lower"], level: "Beginner", dose: "10–12 reps",
+        summary: "Build your hips, legs, and back with a controlled hinge.",
+        steps: ["Place the kettlebell on the floor between your feet. Stand with feet about hip-width apart.", "Push your hips back as if closing a car door, then bend your knees enough to reach the handle.", "Grip the handle with both hands. Brace your stomach and keep your chest open.", "Push the floor away and stand tall. Finish by squeezing your glutes, not by leaning backward.", "Send your hips back and lower the bell to the same spot with control."],
+        cue: "Keep the bell close to your body and your spine long.", easier: "Raise the kettlebell onto a sturdy step so you do not have to reach as low."
+      },
+      {
+        id: "kb-goblet", name: "Goblet squat", equipment: "Kettlebell", focus: ["full","lower"], level: "Beginner", dose: "8–12 reps",
+        summary: "A front-loaded squat for legs, hips, and core.",
+        steps: ["Hold the kettlebell by the horns at chest height.", "Set your feet just wider than your hips with toes turned slightly out.", "Brace your middle, sit your hips down between your heels, and let your knees track over your toes.", "Pause at a comfortable depth, then press through your whole foot to stand."],
+        cue: "Keep three points of contact on each foot: heel, base of the big toe, and base of the little toe.", easier: "Squat to a chair and stand back up."
+      },
+      {
+        id: "kb-press", name: "Half-kneeling kettlebell press", equipment: "Kettlebell", focus: ["full","upper","core"], level: "Intermediate", dose: "8 reps each side",
+        summary: "Train shoulders and core while one knee supports you.",
+        steps: ["Kneel with your right knee down and left foot forward.", "Hold the kettlebell at your right shoulder with your wrist straight.", "Squeeze your right glute, brace your middle, and press the bell overhead.", "Lower it slowly to your shoulder. Complete the reps, then switch sides."],
+        cue: "Keep your ribs stacked over your hips; do not lean away from the bell.", easier: "Use a lighter bell or perform the press seated without back support."
+      },
+      {
+        id: "kb-row", name: "Supported kettlebell row", equipment: "Kettlebell", focus: ["full","upper"], level: "Beginner", dose: "10 reps each side",
+        summary: "Strengthen the upper back with one hand supported.",
+        steps: ["Place one hand on a sturdy chair and step the same-side foot forward.", "Hold the kettlebell in the other hand with your arm long.", "Keep your back flat and pull your elbow toward your back pocket.", "Pause, then lower the bell until your arm is straight."],
+        cue: "Keep your shoulder away from your ear and avoid twisting your torso.", easier: "Use a lighter bell or shorten the range."
+      },
+      {
+        id: "db-floor", name: "Dumbbell floor press", equipment: "Dumbbells", focus: ["full","upper"], level: "Beginner", dose: "10–12 reps",
+        summary: "A chest and triceps press with the floor limiting depth.",
+        steps: ["Sit with the dumbbells beside you, then carefully roll onto your back with knees bent.", "Hold the dumbbells over your chest, palms facing forward or slightly inward.", "Lower your upper arms until they gently touch the floor, keeping elbows about 45 degrees from your body.", "Press the dumbbells up until your arms are straight without clanging the weights together."],
+        cue: "Keep your feet planted and your ribs down.", easier: "Press one dumbbell at a time."
+      },
+      {
+        id: "db-rdl", name: "Dumbbell Romanian deadlift", equipment: "Dumbbells", focus: ["full","lower"], level: "Beginner", dose: "10–12 reps",
+        summary: "Train hamstrings and glutes with a hip hinge.",
+        steps: ["Stand tall with a dumbbell in each hand in front of your thighs.", "Soften your knees and push your hips backward.", "Slide the weights down close to your legs until you feel tension in the backs of your thighs.", "Drive your hips forward and stand tall."],
+        cue: "The hips travel back; this is not a squat.", easier: "Use one dumbbell held with both hands."
+      },
+      {
+        id: "db-split", name: "Dumbbell reverse lunge", equipment: "Dumbbells", focus: ["full","lower"], level: "Intermediate", dose: "8 reps each side",
+        summary: "Build single-leg strength while stepping backward.",
+        steps: ["Stand tall with a dumbbell in each hand at your sides.", "Step one foot back and land on the ball of that foot.", "Bend both knees until the front thigh reaches a comfortable depth.", "Press through the front foot to return to standing, then switch sides."],
+        cue: "Keep most of your pressure through the whole front foot.", easier: "Hold one dumbbell at your chest or use body weight only."
+      },
+      {
+        id: "db-row", name: "Bent-over dumbbell row", equipment: "Dumbbells", focus: ["full","upper"], level: "Beginner", dose: "10–12 reps",
+        summary: "Work the back and arms from a stable hip hinge.",
+        steps: ["Hold a dumbbell in each hand and hinge forward with knees soft.", "Let your arms hang under your shoulders while keeping your spine long.", "Pull both elbows toward your hips.", "Pause briefly, then lower the weights with control."],
+        cue: "Keep your neck neutral and avoid shrugging.", easier: "Row one arm at a time with your free hand supported on a chair."
+      },
+      {
+        id: "db-suitcase", name: "Dumbbell suitcase march", equipment: "Dumbbells", focus: ["full","core"], level: "Beginner", dose: "20–30 seconds each side",
+        summary: "Train core stability by resisting the pull of one dumbbell.",
+        steps: ["Stand tall with one dumbbell at your side and your other hand relaxed.", "Brace your stomach and keep both shoulders level.", "March slowly in place, lifting one foot at a time without leaning toward the weight.", "Switch the dumbbell to the other hand and repeat."],
+        cue: "Imagine balancing a glass of water on your head while you march.", easier: "Hold the dumbbell and stand still instead of marching."
+      },
+      {
+        id: "ab-kneeling", name: "Kneeling ab rollout", equipment: "Ab roller", focus: ["full","core"], level: "Intermediate", dose: "5–8 reps",
+        summary: "Challenge your entire core with a short, controlled rollout.",
+        steps: ["Kneel on a folded mat and place both hands on the roller.", "Round your tailbone slightly under and brace your stomach as if preparing for a cough.", "Roll forward only as far as you can keep your ribs and hips connected.", "Use your core and arms to pull the wheel back under your shoulders."],
+        cue: "A short rollout with a flat lower back is better than a long rollout with sagging hips.", easier: "Roll toward a wall so the wheel stops after a short distance."
+      },
+      {
+        id: "ab-wall", name: "Wall-limited ab rollout", equipment: "Ab roller", focus: ["full","core"], level: "Beginner", dose: "6–10 reps",
+        summary: "Use a wall as a safe stopping point while learning the rollout.",
+        steps: ["Kneel about two feet from a wall with the roller under your shoulders.", "Brace your stomach and squeeze your glutes.", "Roll forward slowly until the wheel touches the wall.", "Pause, then pull back to the start without letting your lower back arch."],
+        cue: "Move your knees closer to the wall if your back starts to dip.", easier: "Use an even shorter distance."
+      },
+      {
+        id: "ab-hold", name: "Ab roller plank hold", equipment: "Ab roller", focus: ["full","core","upper"], level: "Beginner", dose: "15–25 seconds",
+        summary: "Build stability by holding the roller still.",
+        steps: ["Kneel on a mat and place both hands on the roller under your shoulders.", "Walk your knees back slightly so your body forms a straight line from head to knees.", "Squeeze the handles, brace your stomach, and hold the wheel still.", "Breathe slowly and stop before your lower back sags."],
+        cue: "Think of pulling your ribs toward your belt buckle.", easier: "Keep your hips slightly behind your knees."
+      },
+      {
+        id: "ab-diagonal", name: "Diagonal ab rollout", equipment: "Ab roller", focus: ["core"], level: "Intermediate", dose: "5 reps each direction",
+        summary: "Add a gentle diagonal path to challenge the side core.",
+        steps: ["Start in a short kneeling rollout position.", "Brace firmly and roll a few inches toward the right.", "Pull back to center, then roll a few inches toward the left.", "Keep both hips facing the floor throughout."],
+        cue: "The diagonal should be small and controlled, not a sweeping turn.", easier: "Use straight wall-limited rollouts instead."
+      },
+      {
+        id: "band-row", name: "Seated band row", equipment: "Bands", focus: ["full","upper"], level: "Beginner", dose: "12–15 reps",
+        summary: "A back-strengthening pull with easy-to-adjust tension.",
+        steps: ["Sit tall with legs extended or slightly bent and loop the band around the arches of both feet.", "Hold one end in each hand with arms straight and light tension in the band.", "Pull your elbows back until your hands reach your ribs.", "Pause, then slowly straighten your arms."],
+        cue: "Keep your chest tall and shoulders down.", easier: "Hold the band closer to its ends for less tension."
+      },
+      {
+        id: "band-press", name: "Standing band chest press", equipment: "Bands", focus: ["full","upper"], level: "Beginner", dose: "10–15 reps",
+        summary: "Press forward against band tension for chest and triceps.",
+        steps: ["Anchor the band securely behind you at chest height and face away from the anchor.", "Hold the handles beside your chest and step forward into a staggered stance.", "Brace your middle and press both hands forward.", "Return slowly until your hands are beside your chest."],
+        cue: "Use only a solid anchor that cannot move or damage the band.", easier: "Step closer to the anchor to reduce tension."
+      },
+      {
+        id: "band-squat", name: "Banded squat", equipment: "Bands", focus: ["full","lower"], level: "Beginner", dose: "12–15 reps",
+        summary: "Add smooth resistance to a bodyweight squat.",
+        steps: ["Stand on the middle of a long band with feet about shoulder-width apart.", "Hold the ends at shoulder height and make sure the band is even on both sides.", "Sit down and back into a comfortable squat while keeping your knees in line with your toes.", "Stand tall against the band's tension."],
+        cue: "Check the band for cracks or tears before standing on it.", easier: "Perform a bodyweight squat to a chair."
+      },
+      {
+        id: "band-pallof", name: "Band anti-rotation press", equipment: "Bands", focus: ["full","core"], level: "Beginner", dose: "8–10 reps each side",
+        summary: "Teach your core to resist twisting.",
+        steps: ["Anchor the band at chest height and stand sideways to the anchor.", "Hold the band at your chest with both hands and step away until there is light tension.", "Brace your stomach and press your hands straight forward.", "Pause without turning, then return your hands to your chest. Switch sides."],
+        cue: "Keep your shoulders and hips facing forward.", easier: "Stand closer to the anchor."
+      }
+    ];
+
+    const state = {
+      level: "Beginner",
+      duration: 25,
+      equipment: new Set(["Kettlebell","Dumbbells","Ab roller","Bands"]),
+      workout: [], rounds: 3, playerIndex: 0, timer: 40, timerId: null,
+      profile: null
+    };
+    const output = document.getElementById("plan-output");
+    const libraryGrid = document.getElementById("library-grid");
+    const onboardingDialog = document.getElementById("onboarding-dialog");
+    const detailDialog = document.getElementById("detail-dialog");
+    const playerDialog = document.getElementById("player-dialog");
+
+    const goalNames = {
+      general: "overall fitness",
+      strength: "strength",
+      tone: "muscle tone",
+      weight: "weight management",
+      mobility: "comfortable movement",
+      core: "core strength"
+    };
+
+    function escapeText(value) {
+      return String(value).replace(/[&<>'"]/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]));
+    }
+
+    function syncBuilderControls() {
+      document.querySelectorAll('[data-single="level"] .choice').forEach(button => {
+        button.setAttribute("aria-pressed", String(button.dataset.value === state.level));
+      });
+      document.querySelectorAll('[data-single="duration"] .choice').forEach(button => {
+        button.setAttribute("aria-pressed", String(Number(button.dataset.value) === state.duration));
+      });
+      document.querySelectorAll('[data-multi="equipment"] .choice').forEach(button => {
+        button.setAttribute("aria-pressed", String(state.equipment.has(button.dataset.value)));
+      });
+      const focus = state.profile?.goal === "core" ? "core" : "full";
+      document.getElementById("focus").value = focus;
+    }
+
+    function renderProfileSummary() {
+      const box = document.getElementById("profile-summary");
+      box.hidden = false;
+      if (!state.profile) {
+        document.getElementById("profile-summary-title").textContent = "General beginner plan";
+        document.getElementById("profile-summary-text").textContent = "25 minutes · full body · all four equipment options";
+        return;
+      }
+      const p = state.profile;
+      document.getElementById("profile-summary-title").textContent = `Plan for ${goalNames[p.goal]}`;
+      document.getElementById("profile-summary-text").textContent = `${p.days} days a week · ${p.time} minutes · ${p.level.toLowerCase()} · age ${p.age} · ${p.feet} ft ${p.inches} in`;
+    }
+
+    function applyGeneralDefaults() {
+      state.profile = null;
+      state.level = "Beginner";
+      state.duration = 25;
+      state.equipment = new Set(["Kettlebell","Dumbbells","Ab roller","Bands"]);
+      syncBuilderControls();
+      renderProfileSummary();
+      onboardingDialog.close();
+      buildWorkout();
+    }
+
+    function closeOnboarding() {
+      if (state.profile) onboardingDialog.close();
+      else applyGeneralDefaults();
+    }
+
+    function applyProfile(event) {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const age = Number(form.age.value);
+      const feet = Number(form.feet.value);
+      const inches = Number(form.inches.value);
+      const equipment = [...form.querySelectorAll('input[name="equipment"]:checked')].map(input => input.value);
+      const error = document.getElementById("profile-error");
+      if (!Number.isFinite(age) || age < 10 || age > 100) {
+        error.textContent = "Enter an age from 10 to 100.";
+        form.age.focus();
+        return;
+      }
+      if (!Number.isFinite(feet) || feet < 3 || feet > 8 || !Number.isFinite(inches) || inches < 0 || inches > 11) {
+        error.textContent = "Enter height as 3 to 8 feet and 0 to 11 inches.";
+        form.feet.focus();
+        return;
+      }
+      if (!equipment.length) {
+        error.textContent = "Choose at least one piece of equipment.";
+        form.querySelector('input[name="equipment"]').focus();
+        return;
+      }
+      error.textContent = "";
+      state.profile = {
+        age, feet, inches,
+        level: form.level.value,
+        activity: form.activity.value,
+        goal: form.goal.value,
+        days: Number(form.days.value),
+        time: Number(form.time.value),
+        limitations: form.limitations.value,
+        notes: form.notes.value.trim(),
+        equipment
+      };
+      state.level = state.profile.level;
+      state.duration = state.profile.time;
+      state.equipment = new Set(equipment);
+      syncBuilderControls();
+      renderProfileSummary();
+      onboardingDialog.close();
+      buildWorkout();
+      document.getElementById("builder-title").focus?.();
+    }
+
+    document.querySelectorAll("[data-single]").forEach(group => {
+      group.addEventListener("click", event => {
+        const button = event.target.closest("button");
+        if (!button) return;
+        group.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b === button)));
+        state[group.dataset.single] = group.dataset.single === "duration" ? Number(button.dataset.value) : button.dataset.value;
+        if (state.profile) {
+          if (group.dataset.single === "duration") state.profile.time = state.duration;
+          if (group.dataset.single === "level") state.profile.level = state.level;
+          renderProfileSummary();
+        }
+      });
+    });
+
+    document.querySelector("[data-multi]").addEventListener("click", event => {
+      const button = event.target.closest("button");
+      if (!button) return;
+      const active = button.getAttribute("aria-pressed") === "true";
+      button.setAttribute("aria-pressed", String(!active));
+      if (active) state.equipment.delete(button.dataset.value); else state.equipment.add(button.dataset.value);
+      if (state.profile) state.profile.equipment = [...state.equipment];
+    });
+
+    function buildWorkout() {
+      const focus = document.getElementById("focus").value;
+      if (!state.equipment.size) {
+        output.innerHTML = '<div class="empty" role="alert"><strong>Select at least one piece of equipment.</strong><br>Then choose Generate workout again.</div>';
+        return;
+      }
+      const needsGentleStart = state.profile && (
+        state.profile.activity === "low" ||
+        state.profile.limitations !== "none" ||
+        state.profile.age >= 65 ||
+        state.profile.age < 18 ||
+        state.profile.goal === "mobility"
+      );
+      const available = exercises.filter(ex => state.equipment.has(ex.equipment) && ex.focus.includes(focus));
+      let exact = available.filter(ex => (state.level !== "Beginner" && !needsGentleStart) || ex.level === "Beginner");
+      const count = state.duration === 15 ? 4 : state.duration === 25 ? 5 : 6;
+      const priorities = {
+        full: ["db-floor", "band-row", "kb-goblet", "ab-wall", "band-press", "db-rdl", "kb-row", "db-suitcase", "ab-hold", "band-pallof", "kb-deadlift"],
+        upper: ["db-floor", "band-press", "band-row", "kb-row", "db-row", "kb-press", "ab-hold"],
+        lower: ["kb-goblet", "db-rdl", "band-squat", "kb-deadlift", "db-split"],
+        core: ["ab-wall", "band-pallof", "db-suitcase", "ab-hold", "ab-kneeling", "ab-diagonal", "kb-press"]
+      };
+      if (state.profile?.goal === "strength" && focus === "full") priorities.full = ["kb-goblet", "db-rdl", "db-floor", "band-row", "kb-deadlift", "kb-row", "ab-hold"];
+      if (state.profile?.goal === "tone" && focus === "full") priorities.full = ["kb-goblet", "db-floor", "band-row", "db-rdl", "band-press", "ab-wall", "kb-row"];
+      if (state.profile?.goal === "mobility" && focus === "full") priorities.full = ["band-squat", "band-row", "band-press", "band-pallof", "kb-deadlift", "ab-hold"];
+      exact = exact.sort((a,b) => {
+        const ai = priorities[focus].indexOf(a.id);
+        const bi = priorities[focus].indexOf(b.id);
+        return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi);
+      });
+      const chosen = [];
+      const gearUsed = new Set();
+      exact.forEach(ex => {
+        if (chosen.length < count && !gearUsed.has(ex.equipment)) { chosen.push(ex); gearUsed.add(ex.equipment); }
+      });
+      exact.forEach(ex => { if (chosen.length < count && !chosen.includes(ex)) chosen.push(ex); });
+      state.workout = chosen;
+      state.rounds = state.duration === 15 ? 2 : state.duration === 25 ? 3 : 4;
+      if (state.level === "Advanced" && !needsGentleStart) state.rounds += 1;
+      if (needsGentleStart) state.rounds = Math.min(state.rounds, 3);
+      renderPlan(focus, needsGentleStart);
+    }
+
+    function renderPlan(focus, needsGentleStart = false) {
+      const focusName = {full:"Full body",upper:"Upper body",lower:"Lower body",core:"Core and stability"}[focus];
+      const p = state.profile;
+      const goalTag = p ? `<span class="tag">Goal: ${goalNames[p.goal]}</span>` : "";
+      const schedule = p ? `Train ${p.days} day${p.days === 1 ? "" : "s"} each week. ${p.days <= 3 ? "Leave a rest day between sessions when possible." : "Alternate harder and easier days, and keep at least one full rest day."}` : "Repeat 2 or 3 times a week with a rest day between sessions.";
+      const notes = [];
+      if (p && p.limitations !== "none") notes.push("You flagged a health or movement concern, so this starts with beginner movements and no more than three rounds. Use the easier option in each exercise and get qualified medical guidance if you are unsure what is safe for you.");
+      if (p?.age < 18) notes.push("Because this plan is for someone under 18, keep the resistance moderate, focus on technique, and train with a responsible adult or qualified coach.");
+      if (p?.notes) notes.push(`Your note: ${escapeText(p.notes)}. Choose the easier option or skip any movement that conflicts with it.`);
+      if (needsGentleStart && !notes.length) notes.push("This starts at a gentler volume based on your activity level and goal. Add a round only after the current amount feels controlled.");
+      output.innerHTML = `
+        <h3>${p ? "Your " : ""}${focusName.toLowerCase()} plan</h3>
+        <div class="plan-meta">
+          <span class="tag">${state.duration} minutes</span>
+          <span class="tag">${state.rounds} rounds</span>
+          <span class="tag">${state.level}</span>
+          ${goalTag}
+        </div>
+        <p class="schedule-line"><strong>Weekly rhythm:</strong> ${schedule}</p>
+        ${notes.map(note => `<div class="plan-note">${note}</div>`).join("")}
+        <p class="builder-copy">Complete each movement in order. Rest about 20 seconds between movements and 60 seconds between rounds.</p>
+        <div class="exercise-list">
+          ${state.workout.map((ex, i) => `
+            <div class="exercise-row">
+              <div class="exercise-number" aria-hidden="true">${i + 1}</div>
+              <div><div class="exercise-name">${ex.name}</div><div class="exercise-dose">${ex.dose} · ${ex.equipment}</div></div>
+              <button class="detail-btn" type="button" data-detail="${ex.id}" aria-label="Instructions for ${ex.name}">How to</button>
+            </div>`).join("")}
+        </div>
+        <div class="plan-actions">
+          <button class="primary" type="button" id="start-session">Start guided session</button>
+          <button class="secondary" type="button" id="download-plan">Download plan</button>
+        </div>`;
+      output.querySelectorAll("[data-detail]").forEach(btn => btn.addEventListener("click", () => showDetail(btn.dataset.detail)));
+      document.getElementById("start-session").addEventListener("click", startSession);
+      document.getElementById("download-plan").addEventListener("click", downloadPlan);
+    }
+
+    function showDetail(id) {
+      const ex = exercises.find(item => item.id === id);
+      if (!ex) return;
+      document.getElementById("detail-title").textContent = ex.name;
+      document.getElementById("detail-body").innerHTML = `
+        <p><strong>${ex.equipment} · ${ex.dose}</strong></p>
+        <p>${ex.summary}</p>
+        <h3>How to do it</h3>
+        <ol class="steps">${ex.steps.map(step => `<li>${step}</li>`).join("")}</ol>
+        <div class="cue"><strong>Form cue:</strong> ${ex.cue}</div>
+        <div class="warning"><strong>Easier option:</strong> ${ex.easier}</div>`;
+      detailDialog.showModal();
+    }
+
+    function renderLibrary(filter = "All") {
+      const list = filter === "All" ? exercises : exercises.filter(ex => ex.equipment === filter);
+      libraryGrid.innerHTML = list.map(ex => `
+        <article class="move-card">
+          <div class="equipment">${ex.equipment}</div>
+          <h3>${ex.name}</h3>
+          <p>${ex.summary}</p>
+          <button type="button" data-detail="${ex.id}">Open instructions</button>
+        </article>`).join("");
+      libraryGrid.querySelectorAll("[data-detail]").forEach(btn => btn.addEventListener("click", () => showDetail(btn.dataset.detail)));
+    }
+
+    document.querySelectorAll(".lib-filter").forEach(btn => btn.addEventListener("click", () => {
+      document.querySelectorAll(".lib-filter").forEach(b => b.setAttribute("aria-pressed", String(b === btn)));
+      renderLibrary(btn.dataset.filter);
+    }));
+
+    function startSession() {
+      if (!state.workout.length) return;
+      state.playerIndex = 0;
+      stopTimer();
+      updatePlayer();
+      playerDialog.showModal();
+    }
+
+    function updatePlayer() {
+      const ex = state.workout[state.playerIndex];
+      document.getElementById("player-progress").textContent = `Movement ${state.playerIndex + 1} of ${state.workout.length}`;
+      document.getElementById("player-exercise").textContent = ex.name;
+      document.getElementById("player-dose").textContent = `${ex.dose}. ${ex.cue}`;
+      document.getElementById("prev-move").disabled = state.playerIndex === 0;
+      document.getElementById("next-move").textContent = state.playerIndex === state.workout.length - 1 ? "Finish" : "Next";
+      stopTimer();
+    }
+
+    function stopTimer() {
+      clearInterval(state.timerId);
+      state.timerId = null;
+      state.timer = 40;
+      document.getElementById("timer").textContent = "40";
+      document.getElementById("timer-label").textContent = "Ready when you are.";
+      document.getElementById("timer-toggle").textContent = "Start 40-second timer";
+    }
+
+    function toggleTimer() {
+      if (state.timerId) { stopTimer(); return; }
+      document.getElementById("timer-label").textContent = "Work with steady form.";
+      document.getElementById("timer-toggle").textContent = "Reset timer";
+      document.getElementById("timer-live").textContent = "Timer started. 40 seconds.";
+      state.timerId = setInterval(() => {
+        state.timer -= 1;
+        document.getElementById("timer").textContent = state.timer;
+        if ([20,10,5].includes(state.timer)) document.getElementById("timer-live").textContent = `${state.timer} seconds remaining.`;
+        if (state.timer <= 0) {
+          clearInterval(state.timerId); state.timerId = null;
+          document.getElementById("timer-label").textContent = "Time. Rest, then move on when ready.";
+          document.getElementById("timer-toggle").textContent = "Restart timer";
+          document.getElementById("timer-live").textContent = "Time. Rest now.";
+        }
+      }, 1000);
+    }
+
+    function downloadPlan() {
+      const focus = document.getElementById("focus").selectedOptions[0].text;
+      const profileLine = state.profile ? `Goal: ${goalNames[state.profile.goal]}\nWeekly target: ${state.profile.days} days\n` : "Weekly target: 2 to 3 days\n";
+      const text = `${focus} workout — ${state.duration} minutes\n${state.rounds} rounds\n${profileLine}\n` + state.workout.map((ex,i) => `${i+1}. ${ex.name} — ${ex.dose}\n   ${ex.cue}`).join("\n\n") + "\n\nRest about 20 seconds between movements and 60 seconds between rounds. Stop for sharp or sudden pain.";
+      const blob = new Blob([text], {type:"text/plain"});
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url; link.download = "workout-plan.txt"; link.click();
+      URL.revokeObjectURL(url);
+    }
+
+    document.getElementById("profile-form").addEventListener("submit", applyProfile);
+    document.getElementById("use-defaults").addEventListener("click", applyGeneralDefaults);
+    document.getElementById("close-onboarding").addEventListener("click", closeOnboarding);
+    document.getElementById("edit-profile").addEventListener("click", () => onboardingDialog.showModal());
+    onboardingDialog.addEventListener("cancel", event => { event.preventDefault(); closeOnboarding(); });
+    document.getElementById("generate").addEventListener("click", buildWorkout);
+    document.getElementById("timer-toggle").addEventListener("click", toggleTimer);
+    document.getElementById("prev-move").addEventListener("click", () => { if (state.playerIndex > 0) { state.playerIndex--; updatePlayer(); } });
+    document.getElementById("next-move").addEventListener("click", () => {
+      if (state.playerIndex < state.workout.length - 1) { state.playerIndex++; updatePlayer(); }
+      else { stopTimer(); playerDialog.close(); document.getElementById("timer-live").textContent = "Session complete."; }
+    });
+    document.querySelectorAll("[data-close]").forEach(btn => btn.addEventListener("click", () => document.getElementById(btn.dataset.close).close()));
+    [detailDialog, playerDialog].forEach(dialog => dialog.addEventListener("click", event => { if (event.target === dialog) dialog.close(); }));
+
+    renderLibrary();
+    buildWorkout();
+    onboardingDialog.showModal();
+  </script>
+</body>
+</html>
