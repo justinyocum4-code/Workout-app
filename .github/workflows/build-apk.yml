@@ -59,7 +59,7 @@ jobs:
                   mavenCentral()
               }
           }
-          rootProject.name = "WorkoutApp"
+          rootProject.name = "LynxosGym"
           include(":app")
           EOF
 
@@ -80,8 +80,8 @@ jobs:
                   applicationId 'com.workoutapp.app'
                   minSdk 24
                   targetSdk 34
-                  versionCode 1
-                  versionName '1.0'
+                  versionCode 2
+                  versionName '2.0'
               }
           }
           EOF
@@ -90,7 +90,7 @@ jobs:
           <?xml version="1.0" encoding="utf-8"?>
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
               <application
-                  android:label="Workout App"
+                  android:label="Lynxos Gym"
                   android:theme="@android:style/Theme.Material.Light.NoActionBar">
                   <activity
                       android:name="com.workoutapp.app.MainActivity"
